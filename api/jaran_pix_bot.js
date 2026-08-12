@@ -1,18 +1,46 @@
 export default async function handler(req, res) {
-  const TOKEN = "8961431875:AAEuh7IFjJz5mCqIar5tMXTBFA1zhxImWuc";
-  const msg = req.body?.message;
-  if (!msg) return res.status(200).send("ok");
-  
-  const chatId = msg.chat.id;
-  const text = msg.text || "";
-  let reply = text === "/start" 
-    ? "Сайн уу! 📸 Жаран архивт тавтай морил!\n\nӨдрөө бич: 2026-08-20 14:00" 
-    : "🔔 Захиалга: " + text + "\nТун удахгүй холбогдоно!";
+  // Browser-аар ороход ok гэж харуулна
+  if (req.method === 'GET') {
+    return res.status(200).send('ok - bot is running');
+  }
 
-  await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({chat_id: chatId, text: reply})
-  });
-  res.status(200).send("ok");
+  try {
+    const TOKEN = "8961431875:AAEuh7IFjJz5mCqIar5tMXTBFA1zhxImWuc";
+    const body = req.body;
+    
+    if (!body || !body.message) {
+      return res.status(200).send('no message');
+    }
+
+    const chatId = body.message.chat.id;
+    const text = body.message.text || "";
+    const username = body.message.from?.username || "user";
+
+    let replyText = "";
+    
+    if (text === "/start") {
+      replyText = "🎉 БОЛЛОО! Сайн уу! 📸\n\nЖаран архив bot амжилттай ажиллаж байна!\n\nӨдрөө бич: 2026-08-15 14:00";
+    } else {
+      replyText = "✅ Хүлээн авлаа: " + text + "\n\nЗахиалга @jaran_order_bot руу очлоо!";
+    }
+
+    // Telegram руу хариу явуулах
+    const tgRes = await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: replyText
+      })
+    });
+
+    const tgData = await tgRes.json();
+    console.log("Telegram response:", tgData);
+
+    return res.status(200).json({ ok: true, telegram: tgData });
+    
+  } catch (err) {
+    console.error(err);
+    return res.status(200).send('error but ok: ' + err.message);
+  }
 }

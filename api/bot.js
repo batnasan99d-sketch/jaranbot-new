@@ -1,8 +1,8 @@
 module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.setHeader('Pragma', 'no-cache');
-  const TOKEN = process.env.TELEGRAM_BOT_TOKEN || '8897676749:AAEu6VBmiASmgSHfrkAgRkeS0jPFce6ZO1s';
-  
+  const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+
   if (req.method === 'GET') {
     const url = new URL(req.url, 'https://jaranbot-new.vercel.app');
     const testChatId = url.searchParams.get('test');
@@ -19,7 +19,7 @@ module.exports = async (req, res) => {
         return res.status(500).json({ok: false, error: e.message});
       }
     }
-    return res.status(200).send('Jaran Bot v3 Ready! TOKEN: OK | Use ?test=CHAT_ID');
+    return res.status(200).send('Jaran Bot Day 5 - Working! ✅ Use ?test=CHAT_ID or POST webhook');
   }
 
   try {
@@ -32,11 +32,51 @@ module.exports = async (req, res) => {
     } else if (typeof body === 'string') {
       try { body = JSON.parse(body); } catch {}
     }
+
     const msg = body.message || body.edited_message;
     if (!msg || !msg.text) return res.status(200).send('ok no msg');
     const chatId = msg.chat.id;
     const text = msg.text;
-    let reply = text.startsWith('/start') ? '🤖 САЙН УУ! ЭЦЭСТ НЬ АЖИЛЛАА! 🎉 ID: ' + chatId : 'Та "' + text + '" гэж бичлээ.';
+
+    // ⭐ DAY 5 ШИНЭ МЭНДЧИЛГЭЭ - Энд л бүх өөрчлөлт!
+    let reply;
+    if (text.startsWith('/start')) {
+      reply = `📸 Сайн уу ${msg.from.first_name}!
+
+Би Jaran - Монголын Гэрэл Зургийн Орчлон! 🇲🇳
+
+Та одоо манай 90 хоногийн аяллын Day 5 дээр нэгдлээ!
+
+✨ Би юу хийдэг вэ?
+✅ Зурагчдыг бүртгэнэ
+✅ Захиалга ирэхэд шууд мэдэгдэнэ
+✅ Ил тод, шударга
+
+Дараа: /register
+Тусламж: /help
+
+Урагшаа! 🚀`;
+    } else if (text.startsWith('/help')) {
+      reply = `🤖 Jaran Bot Тусламж - Day 5
+
+/register - Бүртгүүлэх (Day 8-10)
+Tаны ID: ${chatId}`;
+    } else if (text.startsWith('/register')) {
+      reply = `📝 Бүртгэл Day 8-10 дээр нээгдэнэ!
+
+Та бэлдээрэй:
+1. Нэр
+2. Утас
+3. Telegram @
+
+Түр хүлээнэ үү! 🔔`;
+    } else {
+      reply = `Та "${text}" гэж бичлээ.
+
+/start - Эхлэх
+/help - Тусламж`;
+    }
+
     const r = await fetch('https://api.telegram.org/bot' + TOKEN + '/sendMessage', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},

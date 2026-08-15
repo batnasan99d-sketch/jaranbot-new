@@ -5,9 +5,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    const TOKEN = "8961431875:AAEuh7IFjJz5mCqIar5tMXTBFA1zhxImWuc";
-    const body = req.body;
     
+    const body = req.body;
+    const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
     if (!body || !body.message) {
       return res.status(200).send('no message');
     }

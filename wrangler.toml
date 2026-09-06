@@ -1,0 +1,6 @@
+name = "jaran"
+main = "worker.js"
+compatibility_date = "2024-09-01"
+
+[vars]
+ORDER_CHAT_ID = "2038932518"
